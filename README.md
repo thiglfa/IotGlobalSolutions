@@ -6,7 +6,6 @@ Este projeto implementa uma solução IoT para monitoramento ambiental em tempo 
 
 ## 📸 Visão Geral
 
-![Dashboard Ilustrativo](docs/dashboard_example.png)
 
 - Indicadores de temperatura, umidade e chuva
 - Alertas visuais (LEDs virtuais) e sonoros em tempo real
@@ -66,6 +65,7 @@ Acesse [http://localhost:1880/ui](http://localhost:1880/ui)
 ### 5. Testes
 
 - Use um simulador de publicação MQTT (ex: MQTT Explorer ou MQTTBox) ou dispositivos reais
+- Ou mude os valores de temperatura, umidade e chuva diretamente pelo potenciometro e dht do através do Wokw.
 - Publique valores nos tópicos:
   - `iotfrontier/temperature` com valores > 30°C para acionar alerta
   - `iotfrontier/humidity` com valores > 70%
@@ -135,6 +135,7 @@ mqtt pub -t iotfrontier/rain -h broker.hivemq.com -m "1400"
 ## 📁 Código-Fonte
 
 - O fluxo principal está no arquivo `node-red-flow.json`
+- O código dos dispositivos IoT se encontra no arquivo sketch.ino
 - Todos os recursos visuais estão embutidos nos nós `ui_template`
 - O projeto não depende de bibliotecas externas no lado do servidor
 
