@@ -1,0 +1,309 @@
+[
+    {
+        "id": "9f94bfaedd81099d",
+        "type": "tab",
+        "label": "Flow 4",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "0fc17700da9b3334",
+        "type": "mqtt in",
+        "z": "9f94bfaedd81099d",
+        "name": "Temp",
+        "topic": "iotfrontier/temperature",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "mqtt_broker",
+        "nl": false,
+        "rap": false,
+        "inputs": 0,
+        "x": 190,
+        "y": 260,
+        "wires": [
+            [
+                "57477119618c9d37",
+                "09b896cef6edf72f",
+                "48df1bb8745d95a6"
+            ]
+        ]
+    },
+    {
+        "id": "1c7b820137bb8472",
+        "type": "mqtt in",
+        "z": "9f94bfaedd81099d",
+        "name": "Umidade",
+        "topic": "iotfrontier/humidity",
+        "broker": "mqtt_broker",
+        "inputs": 0,
+        "x": 190,
+        "y": 320,
+        "wires": [
+            [
+                "57477119618c9d37",
+                "5e0ab773e0540721",
+                "54922330cc29bf7f"
+            ]
+        ]
+    },
+    {
+        "id": "57b27103ec1624ba",
+        "type": "mqtt in",
+        "z": "9f94bfaedd81099d",
+        "name": "Chuva",
+        "topic": "iotfrontier/rain",
+        "broker": "mqtt_broker",
+        "inputs": 0,
+        "x": 190,
+        "y": 380,
+        "wires": [
+            [
+                "57477119618c9d37",
+                "c1005adabab3558c"
+            ]
+        ]
+    },
+    {
+        "id": "57477119618c9d37",
+        "type": "function",
+        "z": "9f94bfaedd81099d",
+        "name": "Verifica Alertas",
+        "func": "const val = parseFloat(msg.payload);\nconst topic = msg.topic;\n\nlet state = context.get(\"alert\") || {\n    led_temp: false,\n    led_humid: false,\n    led_rain: false,\n    sound: false\n};\n\nstate.sound = false; // resetar som por padrão\n\nif (topic.includes(\"temperature\")) {\n    state.led_temp = val > 30;\n    if (val > 30) state.sound = true;\n}\n\nif (topic.includes(\"humidity\")) {\n    state.led_humid = val > 70;\n}\n\nif (topic.includes(\"rain\")) {\n    state.led_rain = val < 1500;\n    if (val < 1500) state.sound = true;\n}\n\ncontext.set(\"alert\", state);\nreturn { payload: state };\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 400,
+        "y": 320,
+        "wires": [
+            [
+                "3887ac61939830a0",
+                "a732c615f4e29508"
+            ]
+        ]
+    },
+    {
+        "id": "3887ac61939830a0",
+        "type": "ui_template",
+        "z": "9f94bfaedd81099d",
+        "group": "9e52782d5f815611",
+        "name": "LEDs",
+        "order": 4,
+        "width": 6,
+        "height": 1,
+        "format": "<div>\n    <span style=\"color: {{msg.payload.led_temp ? 'red' : 'gray'}}\">● Temp</span> |\n    <span style=\"color: {{msg.payload.led_humid ? 'blue' : 'gray'}}\">● Umidade</span> |\n    <span style=\"color: {{msg.payload.led_rain ? 'green' : 'gray'}}\">● Chuva</span>\n</div>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "x": 600,
+        "y": 300,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a732c615f4e29508",
+        "type": "ui_template",
+        "z": "9f94bfaedd81099d",
+        "group": "9e52782d5f815611",
+        "name": "Som de Alerta",
+        "order": 5,
+        "width": 0,
+        "height": 0,
+        "format": "<audio id=\"alerta\" src=\"https://actions.google.com/sounds/v1/alarms/beep_short.ogg\"></audio>\n<script>\n(function(scope) {\n    scope.$watch('msg.payload', function(data) {\n        if (data && data.sound) {\n            document.getElementById('alerta').play();\n        }\n    });\n})(scope);\n</script>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "x": 600,
+        "y": 340,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "09b896cef6edf72f",
+        "type": "ui_gauge",
+        "z": "9f94bfaedd81099d",
+        "name": "Gauge Temp",
+        "group": "9e52782d5f815611",
+        "order": 1,
+        "width": 3,
+        "height": 3,
+        "gtype": "gage",
+        "title": "Temperatura",
+        "label": "°C",
+        "format": "{{value}}",
+        "min": 0,
+        "max": 50,
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#e51f1f"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 400,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "5e0ab773e0540721",
+        "type": "ui_gauge",
+        "z": "9f94bfaedd81099d",
+        "name": "Gauge Umidade",
+        "group": "9e52782d5f815611",
+        "order": 2,
+        "width": 3,
+        "height": 3,
+        "gtype": "gage",
+        "title": "Umidade",
+        "label": "%",
+        "format": "{{value}}",
+        "min": 0,
+        "max": 100,
+        "colors": [
+            "#4479ff",
+            "#00b500",
+            "#ff8000"
+        ],
+        "x": 400,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "48df1bb8745d95a6",
+        "type": "ui_chart",
+        "z": "9f94bfaedd81099d",
+        "name": "Gráfico Temp",
+        "group": "9e52782d5f815611",
+        "order": 6,
+        "width": 6,
+        "height": 3,
+        "label": "Histórico Temperatura",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "ymin": "0",
+        "ymax": "50",
+        "removeOlder": "10",
+        "removeOlderPoints": "",
+        "removeOlderUnit": "60",
+        "cutout": 0,
+        "useOneColor": false,
+        "colors": [
+            "#FF0000"
+        ],
+        "outputs": 1,
+        "x": 610,
+        "y": 400,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "54922330cc29bf7f",
+        "type": "ui_chart",
+        "z": "9f94bfaedd81099d",
+        "name": "Gráfico Umidade",
+        "group": "9e52782d5f815611",
+        "order": 7,
+        "width": 6,
+        "height": 3,
+        "label": "Histórico Umidade",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "ymin": "0",
+        "ymax": "100",
+        "removeOlder": "10",
+        "removeOlderPoints": "",
+        "removeOlderUnit": "60",
+        "cutout": 0,
+        "useOneColor": false,
+        "colors": [
+            "#0000FF"
+        ],
+        "outputs": 1,
+        "x": 610,
+        "y": 440,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c1005adabab3558c",
+        "type": "ui_chart",
+        "z": "9f94bfaedd81099d",
+        "name": "Gráfico Chuva",
+        "group": "9e52782d5f815611",
+        "order": 8,
+        "width": 6,
+        "height": 3,
+        "label": "Histórico Nível de Chuva",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "ymin": "0",
+        "ymax": "4095",
+        "removeOlder": "10",
+        "removeOlderPoints": "",
+        "removeOlderUnit": "60",
+        "cutout": 0,
+        "useOneColor": false,
+        "colors": [
+            "#00aaff"
+        ],
+        "outputs": 1,
+        "x": 610,
+        "y": 480,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "mqtt_broker",
+        "type": "mqtt-broker",
+        "name": "HiveMQ",
+        "broker": "broker.hivemq.com",
+        "port": "1883",
+        "clientid": "nodeRedClient",
+        "usetls": false,
+        "compatmode": true,
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "closeTopic": "",
+        "closePayload": "",
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": ""
+    },
+    {
+        "id": "9e52782d5f815611",
+        "type": "ui_group",
+        "name": "Sensores",
+        "tab": "aaa7419957a67e19",
+        "order": 1,
+        "disp": true,
+        "width": "6"
+    },
+    {
+        "id": "aaa7419957a67e19",
+        "type": "ui_tab",
+        "name": "Dashboard",
+        "icon": "dashboard"
+    }
+]
